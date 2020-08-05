@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+		<title>Simple UI Generator</title>
+		<script>
+			onload = function() {
+				let arg = new Object;
+				let pair=location.search.substring(1).split('&');
+				for(let i=0; pair[i]; i++) {
+					    var kv = pair[i].split('=');
+					    arg[kv[0]]=kv[1];
+				}
+				let config = JSON.parse(atob(decodeURIComponent(arg['config'])));
+
+				let title = document.getElementById('title');
+				let onload = document.getElementById('onload');
+				let generate = document.getElementById('generate');
+
+				title.value = config['title'];
+				onload.value = config['onload'];
+
+				let num_buttons = config['buttons'].length;
+				for(let bi=0; bi<num_buttons; bi++){
+					let formHTML =
+						'<div class="form_group">' +
+							'<label for="label' + bi + '">Label(button' + bi + '):</label>' +
+							'<input type="text" class="form-control" id="label' + bi + '">' +
+							'<label for="onclick' + bi + '">Onclick(button' + bi + '):</label>' +
+							'<textarea class="form-control" rows="5" id="onclick' + bi + '"></textarea>' +
+						'</div>';
+					generate.insertAdjacentHTML("beforeBegin", formHTML);
+					document.getElementById('label' + bi).value = config['buttons'][bi]['label'];
+					document.getElementById('onclick' + bi).value = config['buttons'][bi]['onclick'];
+				}
+
+				generate.onclick = function(){
+					config = {};
+					config['title'] = title.value;
+					config['onload'] = onload.value;
+					config['buttons'] = [];
+					for(let bi=0; bi<num_buttons; bi++){
+						config['buttons'].push({});
+						config['buttons'][bi]['label'] = document.getElementById('label' + bi).value;
+						config['buttons'][bi]['onclick'] = document.getElementById('onclick' + bi).value;
+					}
+					location.href = "ui.html?config="
+						+ encodeURIComponent(btoa(JSON.stringify(config)));
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<div class="form_group">
+				<label for="title">Title:</label>
+				<input type="text" class="form-control" id="title">
+			</div>
+			<div class="form-group">
+				<label for="onload">Onload:</label>
+				<textarea class="form-control" rows="5" id="onload"></textarea>
+			</div>
+			<button id="generate" type="button" class="btn btn-primary btn-block">Generate</button>
+		</div>
+	</body>
+</html>
+
